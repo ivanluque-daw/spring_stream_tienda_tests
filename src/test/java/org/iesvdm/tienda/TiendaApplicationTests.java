@@ -488,11 +488,8 @@ Fabricante: Xiaomi
 	void test31() {
 		var listProds = prodRepo.findAll();
 		var result = listProds.stream().map(Producto::getFabricante).distinct().count();
-		var result2 = listProds.stream()
-				.map(producto -> producto.getFabricante().getCodigo()).collect(Collectors.toSet()).size();
 
 		assertEquals(7, result);
-		assertEquals(7, result2);
 	}
 	
 	/**
@@ -501,11 +498,9 @@ Fabricante: Xiaomi
 	@Test
 	void test32() {
 		var listProds = prodRepo.findAll();
-		var result = listProds.stream().mapToDouble(Producto::getPrecio).average();
+		var result = listProds.stream().mapToDouble(Producto::getPrecio).average().orElse(0);
 
-		result.ifPresent((average) -> {
-			assertEquals(271.7236363636364, average);
-		});
+		assertEquals(271.7236363636364, result);
 	}
 	
 	/**
@@ -514,11 +509,10 @@ Fabricante: Xiaomi
 	@Test
 	void test33() {
 		var listProds = prodRepo.findAll();
-		var result = listProds.stream().min(comparing(Producto::getPrecio));
+		var result = listProds.stream().min(comparing(Producto::getPrecio)).orElse(null);
 
-		result.ifPresent((producto) -> {
-			assertEquals(59.99, producto.getPrecio());
-		});
+		assertNotNull(result);
+		assertEquals(59.99, result.getPrecio());
 	}
 	
 	/**
@@ -538,7 +532,9 @@ Fabricante: Xiaomi
 	@Test
 	void test35() {
 		var listProds = prodRepo.findAll();
-		//TODO		
+		var result = listProds.stream().filter(producto -> producto.getFabricante().getNombre().equals("Asus")).count();
+
+		assertEquals(2, result);
 	}
 	
 	/**
@@ -547,7 +543,9 @@ Fabricante: Xiaomi
 	@Test
 	void test36() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getFabricante().getNombre().equals("Asus")).mapToDouble(Producto::getPrecio).average().orElse(0);
+
+		assertEquals(223.995, result);
 	}
 	
 	
@@ -558,7 +556,16 @@ Fabricante: Xiaomi
 	@Test
 	void test37() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream()
+				.filter(producto -> producto.getFabricante().getNombre().equals("Crucial"))
+				.map(producto -> new Double[] { producto.getPrecio(), producto.getPrecio(), producto.getPrecio(), 1.0 })
+				.reduce((acc, curr) -> new Double[] { Math.min(acc[0], curr[0]), Math.max(acc[1], curr[1]), acc[2] + curr[2], acc[3] + 1 })
+				.orElse(new Double[]{});
+
+		assertEquals(result[0], 120);
+		assertEquals(result[1], 755);
+		assertEquals(result[2] / result[3], 437.5);
+		assertEquals(result[3], 2);
 	}
 	
 	/**
@@ -584,7 +591,18 @@ Hewlett-Packard              2
 	@Test
 	void test38() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+		String CLI_FORMATTER = "%-25s%-5s%n";
+		var result = listFabs.stream().flatMap(fabricante -> fabricante.getProductos().stream())
+				.collect(Collectors.groupingBy(
+					producto -> producto.getFabricante().getNombre(),
+					Collectors.counting()
+				));
+
+		System.out.format(CLI_FORMATTER, new String[]{ "Fabricante", "Productos" });
+		System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+		result.forEach((key, value) -> System.out.format(CLI_FORMATTER, new String[]{ key, String.valueOf(value) }));
+
+		assertEquals(7, result.size());
 	}
 	
 	/**
