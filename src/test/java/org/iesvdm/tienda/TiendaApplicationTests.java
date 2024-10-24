@@ -7,6 +7,10 @@ import org.iesvdm.tienda.repository.ProductoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.reverseOrder;
+
 import java.util.List;
 
 
@@ -93,7 +97,9 @@ class TiendaApplicationTests {
 	@Test
 	void test6() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+		var result = listFabs.stream().sorted(comparing(Fabricante::getNombre).reversed()).toList();
+
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -102,7 +108,9 @@ class TiendaApplicationTests {
 	@Test
 	void test7() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().sorted(comparing(Producto::getNombre).thenComparing(Producto::getPrecio, reverseOrder())).toList();
+
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -111,7 +119,9 @@ class TiendaApplicationTests {
 	@Test
 	void test8() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+		var result = listFabs.stream().limit(5).toList();
+
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -120,7 +130,9 @@ class TiendaApplicationTests {
 	@Test
 	void test9() {
 		var listFabs = fabRepo.findAll();
-		//TODO		
+		var result = listFabs.stream().skip(3).limit(2).toList();
+
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -129,16 +141,20 @@ class TiendaApplicationTests {
 	@Test
 	void test10() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().min(comparing(Producto::getPrecio));
+
+		result.ifPresent(producto -> System.out.println("Nombre: " + producto.getNombre() + ", Precio: " + producto.getPrecio()));
 	}
-	
+
 	/**
 	 * 11. Lista el nombre y el precio del producto más caro
 	 */
 	@Test
 	void test11() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().max(comparing(Producto::getPrecio));
+
+		result.ifPresent(producto -> System.out.println("Nombre: " + producto.getNombre() + ", Precio: " + producto.getPrecio()));
 	}
 	
 	/**
@@ -148,7 +164,9 @@ class TiendaApplicationTests {
 	@Test
 	void test12() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getFabricante().getCodigo() == 2).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
 	}
 	
 	/**
