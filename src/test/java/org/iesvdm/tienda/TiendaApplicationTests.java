@@ -5,13 +5,15 @@ import org.iesvdm.tienda.modelo.Producto;
 import org.iesvdm.tienda.repository.FabricanteRepository;
 import org.iesvdm.tienda.repository.ProductoRepository;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @SpringBootTest
@@ -175,7 +177,9 @@ class TiendaApplicationTests {
 	@Test
 	void test13() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getPrecio() <= 120).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
 	}
 	
 	/**
@@ -184,7 +188,9 @@ class TiendaApplicationTests {
 	@Test
 	void test14() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getPrecio() >= 400).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
 	}
 	
 	/**
@@ -193,7 +199,9 @@ class TiendaApplicationTests {
 	@Test
 	void test15() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getPrecio() > 80 && producto.getPrecio() < 300).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
 	}
 	
 	/**
@@ -202,7 +210,9 @@ class TiendaApplicationTests {
 	@Test
 	void test16() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getPrecio() > 200 && producto.getFabricante().getCodigo() == 6).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
 	}
 	
 	/**
@@ -211,7 +221,15 @@ class TiendaApplicationTests {
 	@Test
 	void test17() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		HashSet<Integer> setCodigos = new HashSet<Integer>();
+		setCodigos.add(1);
+		setCodigos.add(3);
+		setCodigos.add(5);
+
+		var result = listProds.stream().filter(producto -> setCodigos.contains(producto.getFabricante().getCodigo())).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
+		assertEquals(5, result.size());
 	}
 	
 	/**
@@ -276,7 +294,11 @@ class TiendaApplicationTests {
 	@Test
 	void test24() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().max(comparing(Producto::getPrecio));
+
+		result.ifPresent(producto -> {
+			assertEquals(755, producto.getPrecio());
+		});
 	}
 	
 	/**
@@ -285,7 +307,10 @@ class TiendaApplicationTests {
 	@Test
 	void test25() {
 		var listProds = prodRepo.findAll();
-		//TODO	
+		var result = listProds.stream().filter(producto -> producto.getFabricante().getNombre().equals("Crucial") && producto.getPrecio() > 200).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
+		assertEquals(1, result.size());
 	}
 	
 	/**
@@ -294,7 +319,11 @@ class TiendaApplicationTests {
 	@Test
 	void test26() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		final String[] fabs = {"Asus", "Hewlett-Packard", "Seagate"};
+		var result = listProds.stream().filter(producto -> Arrays.stream(fabs).anyMatch(fab -> fab.equals(producto.getFabricante().getNombre()))).toList();
+
+		result.forEach(producto -> System.out.println("Nombre: " + producto.getNombre()));
+		assertEquals(5, result.size());
 	}
 	
 	/**
@@ -314,7 +343,15 @@ Monitor 27 LED Full HD |199.25190000000003|Asus
 	@Test
 	void test27() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().filter(producto -> producto.getPrecio() >= 180).sorted(comparing(Producto::getPrecio, reverseOrder()).thenComparing(comparing(Producto::getNombre))).toList();
+
+		final String CLI_FORMATTER = "%-25s|%-10s|%-5s%n";
+		System.out.format(CLI_FORMATTER, new String[] {"Producto", "Precio", "Fabricante"});
+		System.out.println("---------------------------------------------");
+
+		result.forEach(producto -> {
+			System.out.format(CLI_FORMATTER, new String[] {producto.getNombre(), String.valueOf(producto.getPrecio()), producto.getFabricante().getNombre()});
+		});
 	}
 	
 	/**
@@ -374,7 +411,21 @@ Fabricante: Xiaomi
 	@Test
 	void test28() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+		var result = listFabs.stream().collect(Collectors.toMap(Fabricante::getNombre, Fabricante::getProductos));
+
+		result.forEach((fab, prods) -> {
+			System.out.println("Fabricante: " + fab);
+			System.out.println();
+
+			System.out.println("\t\tProductos:");
+			if (!prods.isEmpty()) {
+				prods.forEach((prod -> System.out.println("\t\t" + prod.getNombre())));
+			};
+
+			System.out.println();
+		});
+
+		assertEquals(9, result.size());
 	}
 	
 	/**
