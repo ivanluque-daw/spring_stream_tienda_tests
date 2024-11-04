@@ -443,7 +443,9 @@ Fabricante: Xiaomi
 	@Test
 	void test30() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().count();
+
+		assertEquals(11, result);
 	}
 
 	
@@ -453,7 +455,12 @@ Fabricante: Xiaomi
 	@Test
 	void test31() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().map(Producto::getFabricante).distinct().count();
+		var result2 = listProds.stream()
+				.map(producto -> producto.getFabricante().getCodigo()).collect(Collectors.toSet()).size();
+
+		assertEquals(7, result);
+		assertEquals(7, result2);
 	}
 	
 	/**
@@ -462,7 +469,11 @@ Fabricante: Xiaomi
 	@Test
 	void test32() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().mapToDouble(Producto::getPrecio).average();
+
+		result.ifPresent((average) -> {
+			assertEquals(271.7236363636364, average);
+		});
 	}
 	
 	/**
@@ -471,7 +482,11 @@ Fabricante: Xiaomi
 	@Test
 	void test33() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var result = listProds.stream().min(comparing(Producto::getPrecio));
+
+		result.ifPresent((producto) -> {
+			assertEquals(59.99, producto.getPrecio());
+		});
 	}
 	
 	/**
@@ -480,7 +495,9 @@ Fabricante: Xiaomi
 	@Test
 	void test34() {
 		var listProds = prodRepo.findAll();
-		//TODO	
+		var result = listProds.stream().mapToDouble(Producto::getPrecio).sum();
+
+		assertEquals(2988.96, result);
 	}
 	
 	/**
